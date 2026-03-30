@@ -10,3 +10,4 @@ connectToDB();
 app.listen(port, (req, res)=> {
     console.log(`Server is running on ${port}`);
 });
+
