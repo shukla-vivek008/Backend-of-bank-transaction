@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ledgerModel = require("./ledger.model");
 
 const accountSchema = new mongoose.Schema(
   {
@@ -9,7 +10,7 @@ const accountSchema = new mongoose.Schema(
       index: true,
     },
     status: {
-      type:String,
+      type: String,
       enum: {
         values: ["ACTIVE", "FROZEN", "CLOSED"],
         message: "Status can either ACTIVE, FROZEN, CLOSED",
@@ -27,8 +28,45 @@ const accountSchema = new mongoose.Schema(
   },
 );
 
-accountSchema.index({user:1, status: 1})
+accountSchema.index({ user: 1, status: 1 });
 
-const accountModel = mongoose.model("account",accountSchema);
+accountSchema.methods.getBalance = async function () {
+  const balanceData = await ledgerModel.aggregate([
+    { 
+  $match: { 
+    account: new mongoose.Types.ObjectId(this._id) 
+  } 
+},
+    {
+      $group: {
+        _id: null,
+        totalDebit: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0],
+          },
+        },
+        totalCredit: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        balance: { $subtract: ["$totalCredit", "$totalDebit"] },
+      },
+    },
+  ]);
+
+  if (balanceData.length === 0) {
+    return 0;
+  }
+
+  return balanceData[0].balance;
+};
+
+const accountModel = mongoose.model("account", accountSchema);
 
 module.exports = accountModel;

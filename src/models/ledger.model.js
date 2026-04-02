@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ledgerSchema = new mongoose.Schema({
   account: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "account",
     requried: [true, "Ledger must be associated with an account"],
     index: true,

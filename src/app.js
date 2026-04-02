@@ -22,6 +22,6 @@ const transactionRouter = require("../src/routes/transaction.routes.js");
 
 app.use("/api/auth", authRouter);
 app.use("/api/accounts", accountRouter);
-app.use("api/transacitons", transactionRouter);
+app.use("/api/transactions", transactionRouter);
 
 module.exports = app;
