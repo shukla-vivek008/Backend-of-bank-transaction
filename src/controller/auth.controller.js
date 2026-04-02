@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model.js");
 const jwt = require("jsonwebtoken");
 const comparePassword = require("../models/user.model.js");
+const emailService = require("../services/email.service.js");
 
 /**
  * - User Register controller
@@ -40,6 +41,8 @@ const userRegisterController = async (req, res) => {
       password: (await newUser).password,
     },
   });
+
+  await emailService.sendRegistrationEmail(newUser.email, newUser.name)
 };
 
 /**
